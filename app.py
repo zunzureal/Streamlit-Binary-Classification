@@ -57,7 +57,6 @@ def main():
             st.subheader("ROC Curve")
             fig, ax = plt.subplots()
             RocCurveDisplay.from_estimator(model, x_test, y_test, ax=ax)
-            plot_roc_curve(model, x_test, y_test, ax=ax)
             st.pyplot(fig)
         
         if 'Precision-Recall Curve' in metrics_list:
@@ -89,9 +88,13 @@ def main():
             model.fit(x_train,y_train)
             accuracy = model.score(x_test, y_test)
             y_pred   = model.predict(x_test)
-            st.write("Accuracy: ", accuracy.round(2))
-            st.write("Precision: ", precision_score(y_test,y_pred, labels=class_names).round(2))
-            st.write("Recall: ", recall_score(y_test, y_pred, labels=class_names).round(2))
+
+            precision = precision_score(y_test, y_pred).round(2)
+            recall = recall_score(y_test, y_pred).round(2)
+            
+            st.write("Accuracy: ", round(accuracy, 2))
+            st.write("Precision: ", precision)
+            st.write("Recall: ", recall)
             plot_metrics(metrics)
 
 
