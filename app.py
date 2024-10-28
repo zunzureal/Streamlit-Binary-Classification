@@ -8,8 +8,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precision_recall_curve
 from sklearn.metrics import precision_score, recall_score 
+from sklearn.metrics import ConfusionMatrixDisplay, RocCurveDisplay, PrecisionRecallDisplay
 
 def main():
     ################ Step 1 Create Web Title #####################
@@ -47,23 +47,24 @@ def main():
             
             st.subheader("Confusion Matrix")
             fig, ax = plt.subplots()
-            plot_confusion_matrix(model, x_test, y_test, display_labels=class_names,ax=ax)
-            st.pyplot(fig) 
+            ConfusionMatrixDisplay.from_estimator(model, x_test, y_test, ax=ax, display_labels=class_names)
+            st.pyplot(fig)
+    
+            
         
         if 'ROC Curve' in metrics_list:
             
             st.subheader("ROC Curve")
             fig, ax = plt.subplots()
+            RocCurveDisplay.from_estimator(model, x_test, y_test, ax=ax)
             plot_roc_curve(model, x_test, y_test, ax=ax)
             st.pyplot(fig)
         
         if 'Precision-Recall Curve' in metrics_list:
-            
             st.subheader("Precision-Recall Curve")
             fig, ax = plt.subplots()
-            plot_precision_recall_curve(model, x_test, y_test, ax=ax)
+            PrecisionRecallDisplay.from_estimator(model, x_test, y_test, ax=ax)
             st.pyplot(fig)
-
       
     df = load_data()
     x_train, x_test, y_train, y_test = spliting_data(df)
