@@ -12,17 +12,20 @@ This Streamlit app is designed to classify mushrooms as either edible or poisono
 
 ### Prerequisites
 Ensure you have the required libraries:
+
 ```bash
 pip install -r requirements.txt
 
 ### Running the App
+
 ```bash
 streamlit run app.py
 
 ### Project Structure
+
 - app.py: Main Streamlit app file.
 - data/: Directory containing the mushrooms.csv dataset.
 - requirements.txt: Lists required dependencies.
 
-Usage
+### Usage
 Use the sidebar to select a classifier, adjust parameters, and view model performance metrics. The app dynamically displays evaluation metrics to help analyze each model's effectiveness.
