@@ -37,23 +37,19 @@ def main():
     
     @st.cache_data(persist=True)
     def spliting_data(df):
-        y = df.type
-        x = df.drop(columns=['type'])
-        x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.3, random_state=0)
+        y = df.type.values  # Convert to numpy array
+        x = df.drop(columns=['type']).values  # Convert to numpy array
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
         return x_train, x_test, y_train, y_test
     
     def plot_metrics(metrics_list):
         if 'Confusion Matrix' in metrics_list:
-            
             st.subheader("Confusion Matrix")
             fig, ax = plt.subplots()
             ConfusionMatrixDisplay.from_estimator(model, x_test, y_test, ax=ax, display_labels=class_names)
             st.pyplot(fig)
-    
-            
         
         if 'ROC Curve' in metrics_list:
-            
             st.subheader("ROC Curve")
             fig, ax = plt.subplots()
             RocCurveDisplay.from_estimator(model, x_test, y_test, ax=ax)
@@ -67,27 +63,26 @@ def main():
       
     df = load_data()
     x_train, x_test, y_train, y_test = spliting_data(df)
-    class_names = ['edible','poisonous']
+    class_names = ['edible', 'poisonous']
     st.sidebar.subheader("Choose Classifiers")
-    classifier  = st.sidebar.selectbox("Classifier", ("Support Vectore Machine (SVM)", "Logistice Regression", "Random Forest"))
+    classifier = st.sidebar.selectbox("Classifier", ("Support Vector Machine (SVM)", "Logistic Regression", "Random Forest"))
 
+    ############### Step 3 Train a SVM Classifier ##########
 
-     ############### Step 3 Train a SVM Classifier ##########
-
-    if classifier == 'Support Vectore Machine (SVM)':
+    if classifier == 'Support Vector Machine (SVM)':
         st.sidebar.subheader("Model Hyperparameters")
         C = st.sidebar.number_input("C (Regularization parameter)", 0.01, 10.0, step=0.01, key='C')
         kernel = st.sidebar.radio("Kernel", ("rbf", "linear"), key='kernel')
-        gamma  = st.sidebar.radio("Gamma (Kernel Coefficient)", ("scale", "auto"), key='gamma')
+        gamma = st.sidebar.radio("Gamma (Kernel Coefficient)", ("scale", "auto"), key='gamma')
 
         metrics = st.sidebar.multiselect("What metrics to plot?", ("Confusion Matrix", "ROC Curve", "Precision-Recall Curve"))
 
         if st.sidebar.button("Classify", key='classify'):
-            st.subheader("Supper Vector Machine (SVM) results")
+            st.subheader("Support Vector Machine (SVM) results")
             model = SVC(C=C, kernel=kernel, gamma=gamma)
-            model.fit(x_train,y_train)
+            model.fit(x_train, y_train)
             accuracy = model.score(x_test, y_test)
-            y_pred   = model.predict(x_test)
+            y_pred = model.predict(x_test)
 
             precision = precision_score(y_test, y_pred).round(2)
             recall = recall_score(y_test, y_pred).round(2)
@@ -97,40 +92,58 @@ def main():
             st.write("Recall: ", recall)
             plot_metrics(metrics)
 
+    ############### Step 4 Training a Logistic Regression Classifier ##########
 
-    
+    if classifier == 'Logistic Regression':
+        st.sidebar.subheader("Model Hyperparameters")
+        C = st.sidebar.number_input("C (Regularization parameter)", 0.01, 10.0, step=0.01, key='C_lr')
+        max_iter = st.sidebar.slider("Maximum number of iterations", 100, 500, key='max_iter')
 
-     ############### Step 4 Training a Logistic Regression Classifier ##########
-     # Start you Code here #
+        metrics = st.sidebar.multiselect("What metrics to plot?", ("Confusion Matrix", "ROC Curve", "Precision-Recall Curve"))
 
+        if st.sidebar.button("Classify", key='classify_lr'):
+            st.subheader("Logistic Regression results")
+            model = LogisticRegression(C=C, max_iter=max_iter)
+            model.fit(x_train, y_train)
+            accuracy = model.score(x_test, y_test)
+            y_pred = model.predict(x_test)
 
+            precision = precision_score(y_test, y_pred).round(2)
+            recall = recall_score(y_test, y_pred).round(2)
+            
+            st.write("Accuracy: ", round(accuracy, 2))
+            st.write("Precision: ", precision)
+            st.write("Recall: ", recall)
+            plot_metrics(metrics)
 
+    ############### Step 5 Training a Random Forest Classifier ##########
 
+    if classifier == 'Random Forest':
+        st.sidebar.subheader("Model Hyperparameters")
+        n_estimators = st.sidebar.number_input("Number of trees in the forest", 100, 5000, step=10, key='n_estimators')
+        max_depth = st.sidebar.number_input("Maximum depth of the tree", 1, 20, step=1, key='max_depth')
+        bootstrap = st.sidebar.radio("Bootstrap samples when building trees", ("True", "False"), key='bootstrap')
 
+        metrics = st.sidebar.multiselect("What metrics to plot?", ("Confusion Matrix", "ROC Curve", "Precision-Recall Curve"))
 
+        if st.sidebar.button("Classify", key='classify_rf'):
+            st.subheader("Random Forest results")
+            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, bootstrap=bootstrap == "True")
+            model.fit(x_train, y_train)
+            accuracy = model.score(x_test, y_test)
+            y_pred = model.predict(x_test)
 
-     ############### Step 5 Training a Random Forest Classifier ##########
-    # Start you Code here #
-
-
-
-
-
-
-
+            precision = precision_score(y_test, y_pred).round(2)
+            recall = recall_score(y_test, y_pred).round(2)
+            
+            st.write("Accuracy: ", round(accuracy, 2))
+            st.write("Precision: ", precision)
+            st.write("Recall: ", recall)
+            plot_metrics(metrics)
 
     if st.sidebar.checkbox("Show raw data", False):
         st.subheader("Mushroom dataset")
         st.write(df)
 
-    
-    
-    
-
-
-
-
 if __name__ == '__main__':
     main()
-
-
